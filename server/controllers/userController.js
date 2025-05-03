@@ -144,10 +144,9 @@ export const loginUser = async (req, res) => {
             { expiresIn: "7d" }
         );
 
-        // Set cookie with debug
         res.cookie("token", token, {
             httpOnly: true,
-            secure: false, // Set to false for http in development
+            secure: false,
             sameSite: 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000,
             path: "/"

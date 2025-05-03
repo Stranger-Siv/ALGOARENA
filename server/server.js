@@ -12,10 +12,8 @@ dotenv.config();
 
 const app = express();
 
-// Parse cookies before any other middleware
 app.use(cookieParser());
 
-// Configure CORS with specific origin and credentials
 app.use(cors({
     origin: process.env.CLIENT_URL || "http://localhost:3000",
     credentials: true,

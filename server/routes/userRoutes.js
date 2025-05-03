@@ -7,7 +7,6 @@ import User from "../models/User.js";
 const router = express.Router();
 console.log("userRoutes loaded");
 
-// Debug endpoint to check registered users
 router.get("/debug/users", async (req, res) => {
     try {
         const users = await User.find({}, 'email username role createdAt');
@@ -25,7 +24,6 @@ router.get("/debug/users", async (req, res) => {
     }
 });
 
-// Debug endpoint to check specific user
 router.get("/debug/user/:email", async (req, res) => {
     try {
         const user = await User.findOne({ email: req.params.email }).select('+password');
@@ -50,7 +48,6 @@ router.get("/debug/user/:email", async (req, res) => {
     }
 });
 
-// Test endpoint for token verification
 router.get("/verify-token", verifyToken, (req, res) => {
     res.json({
         message: "Token is valid",

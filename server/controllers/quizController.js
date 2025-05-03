@@ -1,4 +1,36 @@
-import Quiz from "../models/Quiz.js";
+import Quiz, { QUIZ_CATEGORIES, DIFFICULTY_LEVELS } from "../models/Quiz.js";
+
+export const getQuizOptions = async (req, res) => {
+  try {
+    const categoryStats = await Quiz.aggregate([
+      {
+        $group: {
+          _id: "$category",
+          count: { $sum: 1 },
+          difficulties: {
+            $addToSet: "$difficulty"
+          }
+        }
+      }
+    ]);
+
+    const categories = QUIZ_CATEGORIES.map(category => {
+      const stats = categoryStats.find(stat => stat._id === category) || { count: 0, difficulties: [] };
+      return {
+        name: category,
+        quizCount: stats.count,
+        availableDifficulties: stats.difficulties
+      };
+    });
+
+    res.status(200).json({
+      categories,
+      difficulties: DIFFICULTY_LEVELS
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching quiz options", error });
+  }
+};
 
 export const getQuizzes = async (req, res) => {
   try {
@@ -8,7 +40,7 @@ export const getQuizzes = async (req, res) => {
     if (category) query.category = category;
     if (difficulty) query.difficulty = difficulty;
 
-    const quizzes = await Quiz.find(query);
+    const quizzes = await Quiz.find(query).select('-options.isCorrect');
     res.status(200).json(quizzes);
   } catch (error) {
     res.status(500).json({ message: "Error fetching quizzes", error });

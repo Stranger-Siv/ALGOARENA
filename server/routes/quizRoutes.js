@@ -4,19 +4,30 @@ import {
   getQuizById,
   createQuiz,
   deleteQuiz,
-  updateQuiz
+  updateQuiz,
+  getQuizOptions
 } from "../controllers/quizController.js";
+import { verifyToken } from "../middlewares/auth.js";
+import { isAdmin } from "../middlewares/adminAuth.js";
 
 const router = express.Router();
 
-router.get("/", getQuizzes);
+router.get("/options", getQuizOptions);  
+router.get("/", getQuizzes);            
+router.get("/:id", getQuizById);       
 
-router.get("/:id", getQuizById);
+router.post("/", verifyToken, isAdmin, createQuiz);
+router.delete("/:id", verifyToken, isAdmin, deleteQuiz);
+router.put("/:id", verifyToken, isAdmin, updateQuiz);
 
-router.post("/", createQuiz);
+const errorHandler = (err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ 
+    message: "Something went wrong!", 
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined 
+  });
+};
 
-router.delete("/:id", deleteQuiz);
-
-router.put("/:id", updateQuiz);
+router.use(errorHandler);
 
 export default router;
